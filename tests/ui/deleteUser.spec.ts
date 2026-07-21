@@ -67,7 +67,7 @@ test('deleting a user shows a confirmation message', async ({ page, request }) =
   await deleteUserByEmail(page, user.email);
 
   const fullName = `${user.firstName} ${user.lastName}`;
-  await expect(page.getByRole('status')).toContainText(`User "${fullName}" was deleted successfully.`);
+  await expect(page.getByRole('status')).toHaveText(`User "${fullName}" was deleted successfully.`);
 });
 
 test('deleting a user removes the row from the table', async ({ page, request }) => {
