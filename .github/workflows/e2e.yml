@@ -24,6 +24,9 @@ jobs:
       - name: Install Playwright browsers (Chromium only for speed)
         run: npx playwright install --with-deps chromium
 
+      - name: Kill any process on port 3000
+        run: lsof -ti:3000 | xargs kill -9 2>/dev/null || true
+
       - name: Start app
         run: node index.js &
 
