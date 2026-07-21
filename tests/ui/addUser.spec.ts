@@ -1,82 +1,74 @@
 import { test, expect } from '@playwright/test';
+import { CreateUserPage } from '../pages/CreateUserPage';
+import { UsersListPage } from '../pages/UsersListPage';
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
+function makeUser(overrides: Partial<{ firstName: string; lastName: string; email: string; password: string }> = {}) {
+  const stamp = `${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+  return {
+    firstName: 'Jane',
+    lastName: 'Doe',
+    email: `jane.doe+${stamp}@example.com`,
+    password: 'SecurePass123!',
+    ...overrides,
+  };
+}
 
-const testUser = {
-  firstName: 'Jane',
-  lastName: 'Doe',
-  email: `jane.doe+${Date.now()}@example.com`,
-  password: 'SecurePass123!',
-};
-
-test.afterEach(async ({ request }) => {
-  // Cleanup: delete user by email via API if endpoint exists
-  await request.delete(`${BASE_URL}/api/users`, {
-    data: { email: testUser.email },
-  }).catch(() => { /* ignore if cleanup endpoint not available */ });
+test.beforeEach(async ({ request }) => {
+  // Keep each test isolated and deterministic.
+  await request.post('/api/seed');
 });
 
 test('Add user via UI saves first name, last name and email correctly @smoke', async ({ page }) => {
-  await page.goto(`${BASE_URL}/users/new`);
+  const createUserPage = new CreateUserPage(page);
+  const usersListPage = new UsersListPage(page);
+  const user = makeUser();
 
-  await page.getByLabel('First Name').fill(testUser.firstName);
-  await page.getByLabel('Last Name').fill(testUser.lastName);
-  await page.getByLabel('Email').fill(testUser.email);
-  await page.getByLabel('Password').fill(testUser.password);
+  await createUserPage.goto();
+  await createUserPage.fillForm(user);
+  await createUserPage.submit();
 
-  await page.getByRole('button', { name: 'Create User' }).click();
-
-  // Should navigate to user list or user detail page
+  // Should navigate back to the users list.
   await expect(page).toHaveURL(/\/users/);
-
-  // Confirm all three fields are visible in the saved record
-  await expect(page.getByText(testUser.firstName, { exact: true })).toBeVisible();
-  await expect(page.getByText(testUser.lastName, { exact: true })).toBeVisible();
-  await expect(page.getByText(testUser.email)).toBeVisible();
+  await expect(usersListPage.getUserRowByEmail(user.email)).toHaveCount(1);
 });
 
 test('Add user via UI shows error for duplicate email', async ({ page, request }) => {
+  const createUserPage = new CreateUserPage(page);
+  const user = makeUser();
+
   // Pre-create user via API so we have a known duplicate
-  await request.post(`${BASE_URL}/api/users`, {
-    data: {
-      firstName: testUser.firstName,
-      lastName: testUser.lastName,
-      email: testUser.email,
-      password: testUser.password,
-    },
+  await request.post('/api/users', {
+    data: user,
   });
 
-  await page.goto(`${BASE_URL}/users/new`);
+  await createUserPage.goto();
+  await createUserPage.fillForm(user);
+  await createUserPage.submit();
 
-  await page.getByLabel('First Name').fill(testUser.firstName);
-  await page.getByLabel('Last Name').fill(testUser.lastName);
-  await page.getByLabel('Email').fill(testUser.email);
-  await page.getByLabel('Password').fill(testUser.password);
-
-  await page.getByRole('button', { name: 'Create User' }).click();
-
-  await expect(page.getByRole('alert')).toContainText(/email.*already (exists|taken|in use)/i);
+  await expect(createUserPage.getAlert()).toContainText(/email.*already (exists|taken|in use)/i);
 });
 
 test('Add user via UI Create User button is disabled until all fields are filled', async ({ page }) => {
-  await page.goto(`${BASE_URL}/users/new`);
+  const createUserPage = new CreateUserPage(page);
+  const user = makeUser();
 
-  const submitBtn = page.getByRole('button', { name: 'Create User' });
+  await createUserPage.goto();
+  const submitBtn = createUserPage.submitButton;
 
   // E1-E: button starts disabled — all fields are empty
   await expect(submitBtn).toBeDisabled();
 
   // Filling fields one-by-one — still disabled until ALL four have values
-  await page.getByLabel('First Name').fill(testUser.firstName);
+  await createUserPage.firstNameInput.fill(user.firstName);
   await expect(submitBtn).toBeDisabled();
 
-  await page.getByLabel('Last Name').fill(testUser.lastName);
+  await createUserPage.lastNameInput.fill(user.lastName);
   await expect(submitBtn).toBeDisabled();
 
-  await page.getByLabel('Email').fill(testUser.email);
+  await createUserPage.emailInput.fill(user.email);
   await expect(submitBtn).toBeDisabled();
 
   // Password is the last required field — only now the button enables
-  await page.getByLabel('Password').fill(testUser.password);
+  await createUserPage.passwordInput.fill(user.password);
   await expect(submitBtn).toBeEnabled();
 });

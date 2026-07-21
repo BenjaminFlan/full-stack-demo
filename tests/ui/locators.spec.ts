@@ -18,39 +18,42 @@ test.describe('Locator practice — /users (list page)', () => {
     await page.goto(`${BASE_URL}/users`);
   });
 
-  test('service-name nav link is visible', async ({ page }) => {
-    // TODO: replace page.locator('TODO') with page.getByRole(...) using the correct role and name
-    const link = page.locator('TODO — replace with page.getByRole()');
+  test('Users nav link is visible', async ({ page }) => {
+    const link = page.getByRole('link', { name: 'User Directory' });
     await expect(link).toBeVisible();
   });
 
   test('Total Users stat displays a number', async ({ page }) => {
     // TODO: locate the user count element using getByTestId
-    const count = page.getByTestId('TODO');
+    const count = page.getByTestId('user-count');
     await expect(count).toBeVisible();
     // Bonus: assert the text content is a number greater than 0
+    const countText = await count.textContent();
+    const totalUsers = Number(countText?.trim());
+    expect(Number.isFinite(totalUsers)).toBeTruthy();
+    expect(totalUsers).toBeGreaterThan(0);
   });
 
   test('role filter radio buttons are present', async ({ page }) => {
     // TODO: replace page.locator('TODO') with page.getByRole('radio', { name: '...' })
-    const adminRadio = page.locator('TODO — replace with page.getByRole()');
+    const adminRadio = page.getByRole('radio', { name: 'Admin' });
     await expect(adminRadio).toBeVisible();
 
     // TODO: locate the "User" radio button
-    const userRadio = page.locator('TODO — replace with page.getByRole()');
+    const userRadio = page.getByRole('radio', { name: 'User' });
     await expect(userRadio).toBeVisible();
   });
 
   test('Alice Johnson appears in the table', async ({ page }) => {
     // TODO: locate a table row that contains "alice@example.com"
     // Hint: page.locator('#users-tbody tr').filter({ hasText: '...' })
-    const aliceRow = page.locator('TODO');
+    const aliceRow = page.locator('#users-tbody tr').filter({ hasText: 'alice@example.com' });
     await expect(aliceRow).toBeVisible();
   });
 
   test('Delete button exists for Alice Johnson', async ({ page }) => {
     // TODO: locate Alice's Delete button — scope to her row first
-    const deleteBtn = page.locator('TODO');
+    const deleteBtn = page.locator('#users-tbody tr').filter({ hasText: 'alice@example.com' }).getByRole('button', { name: 'Delete' });
     await expect(deleteBtn).toBeVisible();
   });
 
@@ -64,15 +67,15 @@ test.describe('Locator practice — /users/new (create form)', () => {
 
   test('all four form inputs are present via getByLabel', async ({ page }) => {
     // TODO: locate each input using getByLabel — fill in the label text
-    await expect(page.getByLabel('TODO')).toBeVisible(); // First Name
-    await expect(page.getByLabel('TODO')).toBeVisible(); // Last Name
-    await expect(page.getByLabel('TODO')).toBeVisible(); // Email
-    await expect(page.getByLabel('TODO')).toBeVisible(); // Password
+    await expect(page.getByLabel('First Name')).toBeVisible(); // First Name
+    await expect(page.getByLabel('Last Name')).toBeVisible(); // Last Name
+    await expect(page.getByLabel('Email')).toBeVisible(); // Email
+    await expect(page.getByLabel('Password')).toBeVisible(); // Password
   });
 
   test('Create User button is present and disabled initially', async ({ page }) => {
     // TODO: replace page.locator('TODO') with page.getByRole('button', { name: '...' })
-    const btn = page.locator('TODO — replace with page.getByRole()');
+    const btn = page.getByRole('button', { name: 'Create User' });
     await expect(btn).toBeDisabled();
   });
 

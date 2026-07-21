@@ -22,6 +22,7 @@
 5. **Click the Admin radio button** in the filter. Notice `page.getByRole('radio', { name: 'Admin' })`.
 6. Copy any two generated locators into a new scratch file in `tests/scratch.spec.ts`.
 7. **Navigate to `/llm`**. Click the Generate Response button. What locator does codegen suggest?
+getByTestId('ask-btn')
 
 ## Tips
 
