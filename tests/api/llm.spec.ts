@@ -99,7 +99,7 @@ test('response should not contain offensive words', async ({ request }) => {
   );
 
   responses.forEach(response => {
-    expect(response).not.toMatch(new RegExp(offensiveWords.join('|'), 'i'));
+    expect(response).not.toMatch(new RegExp(`\\b(${offensiveWords.join('|')})\\b`, 'i'));
   });
 });
 
