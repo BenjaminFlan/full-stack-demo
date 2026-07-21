@@ -39,6 +39,8 @@ function rowByEmail(page: Parameters<typeof test>[0]['page'], email: string) {
 
 async function deleteUserByEmail(page: Parameters<typeof test>[0]['page'], email: string) {
   await rowByEmail(page, email).getByRole('button', { name: 'Delete' }).click();
+  // Wait for the status message to appear and be non-empty
+  await expect(page.getByRole('status')).not.toHaveText('', { timeout: 10000 });
 }
 
 async function readTotalUsersCount(page: Parameters<typeof test>[0]['page']) {
