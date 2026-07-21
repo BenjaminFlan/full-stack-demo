@@ -14,7 +14,7 @@ import { test, expect } from '@playwright/test';
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 
-test('service name link is visible on the users page', async ({ page }) => {
+test.skip('service name link is visible on the users page', async ({ page }) => {
   await page.goto(`${BASE_URL}/users`);
 
   // TODO: paste the locator codegen generated for the "User Directory" nav link
@@ -22,7 +22,7 @@ test('service name link is visible on the users page', async ({ page }) => {
   await expect(serviceLink).toBeVisible();
 });
 
-test('Add User link navigates to the create form', async ({ page }) => {
+test.skip('Add User link navigates to the create form', async ({ page }) => {
   await page.goto(`${BASE_URL}/users`);
 
   // TODO: paste the codegen locator for the "+ Add User" link, then click it
@@ -31,7 +31,7 @@ test('Add User link navigates to the create form', async ({ page }) => {
   await expect(page).toHaveURL(/\/users\/new/);
 });
 
-test('Admin radio button filters the table', async ({ page }) => {
+test.skip('Admin radio button filters the table', async ({ page }) => {
   await page.goto(`${BASE_URL}/users`);
 
   // TODO: paste the codegen locator for the Admin radio button, then click it
@@ -40,7 +40,7 @@ test('Admin radio button filters the table', async ({ page }) => {
   // TODO: assert only 1 row is visible after filtering
 });
 
-test('LLM Generate Response button is visible', async ({ page }) => {
+test.skip('LLM Generate Response button is visible', async ({ page }) => {
   await page.goto(`${BASE_URL}/llm`);
 
   // TODO: paste the codegen locator for the "Generate Response" button

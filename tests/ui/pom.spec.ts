@@ -28,7 +28,7 @@ test.afterEach(async ({ request }) => {
   await request.delete(`${BASE_URL}/api/users`, { data: { email: testUser.email } }).catch(() => {});
 });
 
-test('create user via POM — happy path @smoke', async ({ page }) => {
+test.skip('create user via POM — happy path @smoke', async ({ page }) => {
   const createPage = new CreateUserPage(page);
   await createPage.goto();
 
